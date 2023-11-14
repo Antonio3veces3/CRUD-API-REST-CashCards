@@ -9,32 +9,32 @@ import jakarta.persistence.Id;
 public class CashCard {
 	@Id
 	//@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer Id;
-	private String Username;
-	private Double Amount;
+	private Integer id;
+	private String username;
+	private Double amount;
 	
 	public Integer getId() {
-		return this.Id;
+		return this.id;
 	}
 	
 	public String getUsername() {
-		return this.Username;
+		return this.username;
 	}
 	
 	public Double getAmount() {
-		return this.Amount;
+		return this.amount;
 	}
 	
 	public void setId(Integer newId) {
-		this.Id = newId;
+		this.id = newId;
 	}
 	
 	public void setUsername(String newUsername) {
-		this.Username = newUsername;
+		this.username = newUsername;
 	}
 	
 	public void setAmount(Double newAmount) {
-		this.Amount = newAmount;
+		this.amount = newAmount;
 	}
 	
 }

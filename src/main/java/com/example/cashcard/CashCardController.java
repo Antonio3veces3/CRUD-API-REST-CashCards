@@ -1,15 +1,20 @@
 package com.example.cashcard;
 
+import java.lang.reflect.*;
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.catalina.connector.Response;
+import org.apache.el.util.ReflectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.util.*;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 @RestController
@@ -93,7 +99,22 @@ public class CashCardController {
 	}
 
 	//PATCH 
-
+	@PatchMapping("/{requestedId}")
+	public ResponseEntity<CashCard> patchCashCard(@PathVariable Integer requestedId, @RequestBody Map<String, Object> fields){
+		Optional<CashCard> cashCard = cashCardRepository.findById(requestedId);
+		if (cashCard.isPresent()){
+			fields.forEach((key, value)->{
+				Field field = ReflectionUtils.findField(CashCard.class, (String) key);
+				field.setAccessible(true);
+				ReflectionUtils.setField(field, cashCard.get(), value);
+			});
+				cashCardRepository.save(cashCard.get());
+				return ResponseEntity.ok(cashCard.get());
+			
+		}else {
+			return ResponseEntity.notFound().build();
+		}
+	}
 	//DELETE
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Void> deleteCashCard(@PathVariable Integer id){
