@@ -70,10 +70,10 @@ public class CashCardController {
 	}
 
 	@PostMapping("")
-	private ResponseEntity<Void> AddNewCashCard(@RequestParam String username, @RequestParam Double amount,
+	private ResponseEntity<Void> AddNewCashCard(@RequestBody CashCard cashCardBody,
 			UriComponentsBuilder ucb) {
+		
 		try {
-			CashCard newCashCard = new CashCard();
 			Optional<CashCard> cashCardSearched;
 			Integer newId;
 			do {
@@ -81,11 +81,8 @@ public class CashCardController {
 				cashCardSearched = cashCardRepository.findById(newId);
 			} while (cashCardSearched.isPresent());
 
-			// newCashCard.setId((int) (Math.random() * 100000 + 1));
-			newCashCard.setId(newId);
-			newCashCard.setUsername(username);
-			newCashCard.setAmount(amount);
-			CashCard savedCashCard = cashCardRepository.save(newCashCard);
+			cashCardBody.setId(newId);
+			CashCard savedCashCard = cashCardRepository.save(cashCardBody);
 			URI locationOfNewCashCard = ucb.path("/cashcards/{id}").buildAndExpand(savedCashCard.getId()).toUri();
 			return ResponseEntity.created(locationOfNewCashCard).build();
 		} catch (Exception e) {

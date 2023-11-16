@@ -4,14 +4,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @SpringBootTest( webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -46,8 +54,52 @@ class CashCardApplicationTests {
 		assertThat(amount).isEqualTo(45687.00);
 		
 	}
-		
 	
+	@Test 
+	@DirtiesContext
+	void shouldCreateNewUserCashCard() {
+		CashCard newcashCard = new CashCard();
+		newcashCard.setUsername("test");
+		newcashCard.setAmount(15.00);
+		
+		ResponseEntity<Void> postResponse = restTemplate.postForEntity("/cashcards", newcashCard, Void.class);
+		assertThat(postResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		
+		URI locationOfNewCashCard = postResponse.getHeaders().getLocation();
+		ResponseEntity<String> getResponse = restTemplate.getForEntity(locationOfNewCashCard, String.class);
+		assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+	}
+	
+	@Test
+	@DirtiesContext
+	void shouldUpdateAnEntirelyCashCard() {
+		CashCard updateCashCard = new CashCard();
+		updateCashCard.setId(1);
+		updateCashCard.setUsername("Tony Ramirez");
+		updateCashCard.setAmount(51500.3);
+		String uri = "/cashcards/"+updateCashCard.getId();
+		
+		HttpEntity<CashCard> request = new HttpEntity<CashCard>(updateCashCard);
+		
+		ResponseEntity<Void> putResponse = restTemplate.exchange(uri, HttpMethod.PUT, request, Void.class);
+		
+		assertThat(putResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+	}
+	
+	// Test for patch
+	
+	
+	// Test for delete
+	@Test
+	@DirtiesContext
+	void shouldBeUpdateAnExistingCashCard() {
+		Integer id = 9875320;
+		String uri = "/cashcards/"+id;
+
+		ResponseEntity<Void> deleteResponse = restTemplate.exchange(uri, HttpMethod.DELETE , null, Void.class);
+		
+		assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+	}
 	
 	@Test
 	void shouldReturnACashCardWhenDataIsSaved() {
